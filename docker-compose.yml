@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: url-shortener-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: url-shortener-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  api:
+    build: .
+    container_name: url-shortener-api
+    command: npm start
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/url_shortener
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PORT=3000
+      - BASE_URL=http://localhost:3000
+      - CLIENT_ORIGIN=http://localhost:5173
+    depends_on:
+      - mongo
+      - redis
+    # Scale horizontally: docker compose up --scale api=3
+    # All instances share Mongo + Redis, so any instance can serve any request.
+
+  client:
+    build: ./client
+    container_name: url-shortener-client
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:3000
+    depends_on:
+      - api
+
+  worker:
+    build: .
+    container_name: url-shortener-worker
+    command: npm run worker
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/url_shortener
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - mongo
+      - redis
+    # Analytics workers are also horizontally scalable and independent
+    # of the API tier - scale them separately based on ingestion volume.
+
+volumes:
+  mongo_data:
+  redis_data:
