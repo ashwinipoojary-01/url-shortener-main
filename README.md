@@ -13,7 +13,7 @@ pipeline, geo/device tracking, and Redis-backed rate limiting.
 - **Cache / queue broker / rate-limit store**: Redis (ioredis + BullMQ)
 - **Async workers**: BullMQ worker process, deployed separately from the API
 
-## Quick start
+## Quick start.
 
 Everything at once (Mongo + Redis + API + worker + React client):
 
