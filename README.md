@@ -4,7 +4,7 @@ A production-style URL shortener built to demonstrate system design fundamentals
 custom base62 encoding, cache-aside Redis caching, an async analytics ingestion
 pipeline, geo/device tracking, and Redis-backed rate limiting.
 
-## Stack
+## Stack.
 
 - **API**: Node.js + Express
 - **Frontend**: React (Vite) — `client/`
